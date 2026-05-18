@@ -1,10 +1,13 @@
-.PHONY: help setup test build optimize verify fmt clippy clean
+.PHONY: help setup test build optimize verify ci fmt clippy clean
 
 help:
-	@echo "Targets: setup | test | build | optimize | verify | fmt | clippy | clean"
+	@echo "Targets: setup | ci | verify | test | build | fmt | clippy | clean"
 
 setup:
 	bash scripts/setup-dev.sh
+
+ci:
+	bash scripts/ci-local.sh
 
 test:
 	cargo test --workspace

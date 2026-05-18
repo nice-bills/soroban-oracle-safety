@@ -13,6 +13,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32v1-none
+          components: rustfmt, clippy
       - name: fmt
         run: cargo fmt --all -- --check
       - name: test
@@ -27,8 +28,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32v1-none
-      - name: Install stellar-cli
-        run: cargo install stellar-cli --locked --features opt
+      - uses: stellar/stellar-cli@v26.0.0
       - name: Build contracts
         run: stellar contract build
 

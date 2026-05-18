@@ -16,10 +16,13 @@ Not a dashboard. Not an indexer.
 
 Recommended chain for volatile reserves: **mock/reflector → twap_oracle → circuit_breaker**.
 
+**Note:** `circuit_breaker` applies staleness and deviation checks on **`lastprice` only**. `price` and `prices` pass through to the source oracle unchanged (Blend pools use `lastprice`).
+
 ## Install
 
 ```bash
-cd /home/bills/code/soroban-oracle-safety
+git clone https://github.com/nice-bills/soroban-oracle-safety.git
+cd soroban-oracle-safety
 make setup
 ```
 
@@ -44,13 +47,14 @@ cargo test -p twap-oracle --test integration
 
 ## Testnet deploy (optional)
 
+`scripts/deploy-testnet.sh` deploys WASM only — you must **initialize** each contract after deploy (admin, source oracle, config/periods). Example flow:
+
 ```bash
 stellar keys generate default --network testnet   # once
 stellar contract build
-bash scripts/deploy-testnet.sh
+bash scripts/deploy-testnet.sh                    # writes configs/deployed.testnet.json
+# then invoke initialize on mock_feed, twap_oracle, circuit_breaker via stellar CLI
 ```
-
-Writes `configs/deployed.testnet.json` (gitignored). Initialize contracts via CLI invocations after deploy (admin, source, config).
 
 ## Blend oracle check (TypeScript)
 

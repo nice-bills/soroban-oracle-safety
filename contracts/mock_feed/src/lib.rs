@@ -33,11 +33,7 @@ impl MockFeed {
             panic!("not admin");
         }
         let resolution = storage::get_resolution(&env) as u64;
-        let normalized = if resolution == 0 {
-            timestamp
-        } else {
-            (timestamp / resolution) * resolution
-        };
+        let normalized = normalize_timestamp(timestamp, resolution);
         storage::set_price(&env, &asset, normalized, price);
         storage::set_last_timestamp(&env, &asset, normalized);
         add_asset_if_new(&env, &asset);
@@ -68,7 +64,7 @@ impl PriceFeedTrait for MockFeed {
         if resolution == 0 {
             return None;
         }
-        let normalized = (timestamp / resolution) * resolution;
+        let normalized = normalize_timestamp(timestamp, resolution);
         storage::get_price(&env, &asset, normalized).map(|price| PriceData {
             price,
             timestamp: normalized,
@@ -107,6 +103,14 @@ impl PriceFeedTrait for MockFeed {
         let price = storage::get_price(&env, &asset, timestamp)?;
         Some(PriceData { price, timestamp })
     }
+}
+
+fn normalize_timestamp(timestamp: u64, resolution: u64) -> u64 {
+    if resolution == 0 {
+        return timestamp;
+    }
+    let bucket = timestamp.checked_div(resolution).unwrap_or(0);
+    bucket.saturating_mul(resolution)
 }
 
 fn add_asset_if_new(env: &Env, asset: &Asset) {

@@ -10,7 +10,7 @@ edition = "2021"
 license = "MIT"
 version = "0.1.0"
 authors = ["soroban-oracle-safety contributors"]
-repository = "https://github.com/YOUR_ORG/soroban-oracle-safety"
+repository = "https://github.com/nice-bills/soroban-oracle-safety"
 publish = false
 
 [workspace.dependencies]

@@ -1,6 +1,6 @@
 # One-shot prompt
 
-Open workspace: `/home/bills/code/soroban-oracle-safety`
+Open the repo root (clone from https://github.com/nice-bills/soroban-oracle-safety).
 
 ---
 
@@ -10,7 +10,7 @@ Implement soroban-oracle-safety from 0% to 100% per AGENT.md in this directory.
 READ FIRST: STATUS.md → docs/DEEP_RESEARCH.md → AGENT.md → docs/ARCHITECTURE.md
 
 RULES:
-- Repo root = /home/bills/code/soroban-oracle-safety (no nested subfolder)
+- Repo root = clone root (no nested subfolder)
 - Do NOT create Drips/Wave GitHub issues (repo not accepted yet)
 - On first unknown error: web search; do not guess versions or APIs
 - TypeScript: pnpm only. Python: not used in v0

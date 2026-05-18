@@ -1,6 +1,6 @@
 # Build spec — soroban-oracle-safety
 
-**Repo root:** `/home/bills/code/soroban-oracle-safety` — do not create a nested project folder.
+**Repo root:** project root (where `Cargo.toml` lives) — do not create a nested project folder.
 
 ## Read order
 

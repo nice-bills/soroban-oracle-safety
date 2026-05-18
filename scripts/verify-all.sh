@@ -9,6 +9,9 @@ cargo fmt --all -- --check
 echo "==> workspace tests"
 cargo test --workspace
 
+echo "==> clippy"
+cargo clippy --workspace --all-targets -- -D warnings
+
 echo "==> contract build"
 if command -v stellar >/dev/null 2>&1; then
   stellar contract build

@@ -10,7 +10,7 @@ rustup target add wasm32v1-none 2>/dev/null || true
 echo "==> Stellar CLI"
 if ! command -v stellar >/dev/null 2>&1; then
   echo "Installing stellar-cli (cargo)..."
-  cargo install stellar-cli --locked --features opt
+  cargo install stellar-cli --locked
 fi
 stellar --version
 

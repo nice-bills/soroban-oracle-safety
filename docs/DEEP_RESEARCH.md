@@ -117,4 +117,5 @@ On **first** build/test/deploy error you do not recognize:
 
 ## Changelog (scaffold)
 
+- 2026-05-18: Pin `sep-40-oracle = "=1.2.2"` with `soroban-sdk 22.0.7` — 1.4.x pulls sdk 25 and breaks trait impls. `stellar-cli` install: drop `--features opt` (removed in v26).
 - 2026-05-17: Initial research pack; Symbol hyphen pitfall; sep-40-oracle 1.4 resolves with sdk 22 in tests.

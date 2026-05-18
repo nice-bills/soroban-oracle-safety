@@ -1,0 +1,32 @@
+[workspace]
+resolver = "2"
+members = [
+    "contracts/*",
+    "crates/*",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+authors = ["soroban-oracle-safety contributors"]
+repository = "https://github.com/YOUR_ORG/soroban-oracle-safety"
+publish = false
+
+[workspace.dependencies]
+soroban-sdk = "22.0.7"
+sep-40-oracle = { version = "1.2.2", default-features = false }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true

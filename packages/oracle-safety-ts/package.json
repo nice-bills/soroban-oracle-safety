@@ -1,0 +1,23 @@
+{
+  "name": "@soroban-oracle-safety/ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test dist/**/*.test.js",
+    "check-oracle": "node dist/examples/check-blend-oracle.js"
+  },
+  "dependencies": {
+    "@blend-capital/blend-sdk": "^3.0.0",
+    "@stellar/stellar-sdk": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

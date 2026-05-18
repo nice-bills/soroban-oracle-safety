@@ -1,0 +1,42 @@
+# Rust / Soroban
+target/
+**/target/
+**/.rustc_info.json
+.cargo/
+
+# Stellar CLI
+.soroban/
+.stellar/
+
+# Node (pnpm)
+node_modules/
+packages/*/node_modules/
+examples/*/node_modules/
+.pnpm-store/
+dist/
+*.tsbuildinfo
+
+# Python (if added later)
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# Local / demo
+.deps/
+.demo/
+.cache/
+configs/local.json
+configs/*.local.json
+
+# IDE / OS
+.idea/
+.vscode/
+*.user
+.DS_Store
+
+# Build artifacts
+*.wasm
+!fixtures/**/*.wasm
+artifacts/
+contracts/*/test_snapshots/

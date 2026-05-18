@@ -1,0 +1,12 @@
+{
+  "testnet": {
+    "passphrase": "Test SDF Network ; September 2015",
+    "rpc": "https://soroban-testnet.stellar.org",
+    "horizon": "https://horizon-testnet.stellar.org"
+  },
+  "futurenet": {
+    "passphrase": "Test SDF Future Network ; October 2022",
+    "rpc": "https://rpc-futurenet.stellar.org",
+    "horizon": "https://horizon-futurenet.stellar.org"
+  }
+}

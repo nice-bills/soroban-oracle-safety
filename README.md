@@ -30,8 +30,16 @@ Requires Rust ≥ 1.84, `wasm32v1-none` target, [Stellar CLI](https://developers
 
 ## Build & test
 
+**Before every push**, run the same checks as GitHub Actions:
+
 ```bash
-make verify          # fmt, tests, wasm build, TypeScript
+make ci
+```
+
+Other targets:
+
+```bash
+make verify          # fmt, tests, clippy, wasm build, TypeScript
 cargo test --workspace
 stellar contract build
 ```

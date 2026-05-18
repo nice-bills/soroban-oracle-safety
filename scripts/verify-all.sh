@@ -13,7 +13,8 @@ echo "==> contract build"
 if command -v stellar >/dev/null 2>&1; then
   stellar contract build
 else
-  echo "WARN: stellar CLI missing — skip wasm build (run scripts/setup-dev.sh)"
+  echo "WARN: stellar CLI missing — cargo wasm build fallback"
+  cargo build --target wasm32v1-none --release -p mock-feed -p circuit-breaker -p twap-oracle
 fi
 
 echo "==> TypeScript"

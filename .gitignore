@@ -28,6 +28,7 @@ __pycache__/
 .cache/
 configs/local.json
 configs/*.local.json
+configs/deployed.testnet.json
 
 # IDE / OS
 .idea/

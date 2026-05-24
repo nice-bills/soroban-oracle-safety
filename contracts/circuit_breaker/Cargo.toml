@@ -12,6 +12,7 @@ doctest = false
 [dependencies]
 soroban-sdk = { workspace = true }
 sep-40-oracle = { workspace = true }
+oracle-storage = { path = "../../crates/oracle-storage" }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }

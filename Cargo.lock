@@ -249,6 +249,7 @@ name = "circuit-breaker"
 version = "0.1.0"
 dependencies = [
  "mock-feed",
+ "oracle-storage",
  "sep-40-oracle",
  "soroban-sdk",
 ]
@@ -832,6 +833,7 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 name = "mock-feed"
 version = "0.1.0"
 dependencies = [
+ "oracle-storage",
  "sep-40-oracle",
  "soroban-sdk",
 ]
@@ -893,6 +895,24 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "oracle-storage"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
+name = "oracle-test-utils"
+version = "0.1.0"
+dependencies = [
+ "circuit-breaker",
+ "mock-feed",
+ "sep-40-oracle",
+ "soroban-sdk",
+ "twap-oracle",
 ]
 
 [[package]]
@@ -1576,6 +1596,8 @@ version = "0.1.0"
 dependencies = [
  "circuit-breaker",
  "mock-feed",
+ "oracle-storage",
+ "oracle-test-utils",
  "sep-40-oracle",
  "soroban-sdk",
 ]

@@ -2,8 +2,10 @@
 
 #![no_std]
 
+mod error;
 mod storage;
 
+use error::AdapterError;
 use sep_40_oracle::{Asset, PriceData, PriceFeedTrait};
 use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
 
@@ -13,9 +15,18 @@ pub struct MockFeed;
 #[contractimpl]
 impl MockFeed {
     /// Initialize the mock feed (once).
-    pub fn initialize(env: Env, admin: Address, base: Asset, decimals: u32, resolution: u32) {
+    pub fn initialize(
+        env: Env,
+        admin: Address,
+        base: Asset,
+        decimals: u32,
+        resolution: u32,
+    ) -> Result<(), AdapterError> {
         if storage::has_admin(&env) {
-            panic!("already initialized");
+            return Err(AdapterError::AlreadyInitialized);
+        }
+        if resolution == 0 {
+            return Err(AdapterError::InvalidConfig);
         }
         admin.require_auth();
         storage::set_admin(&env, &admin);
@@ -24,20 +35,26 @@ impl MockFeed {
         storage::set_resolution(&env, resolution);
         storage::set_assets(&env, &Vec::new(&env));
         storage::extend_instance(&env);
+        Ok(())
     }
 
     /// Admin sets a price point for an asset at a timestamp (normalized to resolution).
-    pub fn set_price(env: Env, admin: Address, asset: Asset, price: i128, timestamp: u64) {
+    pub fn set_price(
+        env: Env,
+        admin: Address,
+        asset: Asset,
+        price: i128,
+        timestamp: u64,
+    ) -> Result<(), AdapterError> {
         admin.require_auth();
-        if admin != storage::get_admin(&env) {
-            panic!("not admin");
-        }
+        storage::require_admin(&env, &admin).map_err(AdapterError::from)?;
         let resolution = storage::get_resolution(&env) as u64;
         let normalized = normalize_timestamp(timestamp, resolution);
         storage::set_price(&env, &asset, normalized, price);
         storage::set_last_timestamp(&env, &asset, normalized);
         add_asset_if_new(&env, &asset);
         storage::extend_instance(&env);
+        Ok(())
     }
 }
 
@@ -72,6 +89,9 @@ impl PriceFeedTrait for MockFeed {
     }
 
     fn prices(env: Env, asset: Asset, records: u32) -> Option<Vec<PriceData>> {
+        if records == 0 || records > storage::MAX_PRICE_RECORDS {
+            return None;
+        }
         let resolution = storage::get_resolution(&env) as u64;
         let mut timestamp = storage::get_last_timestamp(&env, &asset)?;
         if resolution == 0 {
@@ -79,8 +99,7 @@ impl PriceFeedTrait for MockFeed {
         }
 
         let mut out: Vec<PriceData> = Vec::new(&env);
-        let limit = if records > 20 { 20 } else { records };
-        for _ in 0..limit {
+        for _ in 0..records {
             if let Some(price) = storage::get_price(&env, &asset, timestamp) {
                 out.push_back(PriceData { price, timestamp });
             } else {

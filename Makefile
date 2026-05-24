@@ -10,7 +10,7 @@ ci:
 	bash scripts/ci-local.sh
 
 test:
-	cargo test --workspace
+	cargo test --workspace --features testutils
 
 build:
 	stellar contract build
@@ -28,7 +28,7 @@ fmt:
 	cargo fmt --all
 
 clippy:
-	cargo clippy --workspace --all-targets -- -D warnings
+	cargo clippy --workspace --all-targets --features testutils -- -D warnings
 
 clean:
 	cargo clean

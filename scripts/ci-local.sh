@@ -9,8 +9,8 @@ rustup target add wasm32v1-none 2>/dev/null || true
 rustup component add rustfmt clippy 2>/dev/null || true
 
 cargo fmt --all -- --check
-cargo test --workspace
-cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace --features testutils
+cargo clippy --workspace --all-targets --features testutils -- -D warnings
 
 echo "=== ci-local: stellar contract build ==="
 if command -v stellar >/dev/null 2>&1; then

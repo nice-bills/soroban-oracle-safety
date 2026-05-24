@@ -1,18 +1,10 @@
 #![cfg(test)]
 
-use mock_feed::{MockFeed, MockFeedClient};
+use oracle_test_utils::deploy_mock;
 use sep_40_oracle::Asset;
 use soroban_sdk::{testutils::Address as _, Address, Env};
 
 use crate::{TwapOracle, TwapOracleClient};
-
-fn deploy_mock<'a>(env: &'a Env, admin: &'a Address) -> (Address, MockFeedClient<'a>) {
-    let base = Asset::Other(soroban_sdk::symbol_short!("USD"));
-    let id = env.register(MockFeed, ());
-    let client = MockFeedClient::new(env, &id);
-    client.initialize(admin, &base, &7, &60);
-    (id, client)
-}
 
 #[test]
 fn twap_equals_arithmetic_mean() {

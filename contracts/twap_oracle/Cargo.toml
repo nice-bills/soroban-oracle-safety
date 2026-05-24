@@ -12,12 +12,14 @@ doctest = false
 [dependencies]
 soroban-sdk = { workspace = true }
 sep-40-oracle = { workspace = true }
+oracle-storage = { path = "../../crates/oracle-storage" }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
 sep-40-oracle = { workspace = true, features = ["testutils"] }
 mock-feed = { path = "../mock_feed" }
 circuit-breaker = { path = "../circuit_breaker" }
+oracle-test-utils = { path = "../../crates/oracle-test-utils" }
 
 [features]
 testutils = ["soroban-sdk/testutils"]

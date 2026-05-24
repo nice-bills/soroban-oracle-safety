@@ -1,33 +1,12 @@
 use sep_40_oracle::Asset;
-use soroban_sdk::{Address, Env, Symbol, Vec};
+use soroban_sdk::{Env, Symbol, Vec};
 
-const INSTANCE_THRESHOLD: u32 = 17_280;
-const INSTANCE_BUMP: u32 = 34_560;
+pub const MAX_PRICE_RECORDS: u32 = 20;
+
 const TEMP_THRESHOLD: u32 = 17_280;
 const TEMP_BUMP: u32 = 34_560;
 
-pub fn extend_instance(env: &Env) {
-    env.storage()
-        .instance()
-        .extend_ttl(INSTANCE_THRESHOLD, INSTANCE_BUMP);
-}
-
-pub fn has_admin(env: &Env) -> bool {
-    env.storage().instance().has(&Symbol::new(env, "Admin"))
-}
-
-pub fn get_admin(env: &Env) -> Address {
-    env.storage()
-        .instance()
-        .get(&Symbol::new(env, "Admin"))
-        .expect("not initialized")
-}
-
-pub fn set_admin(env: &Env, admin: &Address) {
-    env.storage()
-        .instance()
-        .set(&Symbol::new(env, "Admin"), admin);
-}
+pub use oracle_storage::{extend_instance, has_admin, require_admin, set_admin};
 
 pub fn get_base(env: &Env) -> Asset {
     env.storage()

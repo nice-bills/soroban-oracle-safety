@@ -6,12 +6,18 @@
 |--------|------------|
 | Stale oracle price | `max_staleness_secs` in circuit_breaker |
 | Single-block spot spike | AM-TWAP over `N` periods |
-| Large jump vs previous tick | `max_deviation_bps` in circuit_breaker (`lastprice` only) |
+| Large jump vs previous tick | `max_deviation_bps` in circuit_breaker (all SEP-40 reads) |
 | Wrong asset queried | SEP-40 `None` — consumer must handle |
+| Unbounded `prices()` history | `mock_feed` caps at `MAX_PRICE_RECORDS` (20) |
+
+## Architecture notes
+
+- **`oracle-storage`**: shared admin/source/TTL helpers for adapter contracts.
+- **`circuit_breaker`**: per-asset `LastP` keys (not one map for all assets); guards apply to `lastprice`, `price`, and `prices` (newest point for `prices`).
+- **Chain**: `mock_feed` → `twap_oracle` → `circuit_breaker` (recommended).
 
 ## Out of scope / honest limits
 
-- **Historical queries**: `circuit_breaker` does not filter `price` / `prices`; only `lastprice` is guarded.
 - **`max_deviation_bps = 0`**: deviation check disabled (staleness still applies).
 - **Compromised upstream oracle**: we trust the source SEP-40 feed; no multi-source quorum in v0.
 - **Admin key compromise**: admin can change config on wrappers.

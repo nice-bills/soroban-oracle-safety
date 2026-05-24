@@ -17,9 +17,9 @@ jobs:
       - name: fmt
         run: cargo fmt --all -- --check
       - name: test
-        run: cargo test --workspace
+        run: cargo test --workspace --features testutils
       - name: clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --features testutils -- -D warnings
 
   stellar:
     runs-on: ubuntu-latest

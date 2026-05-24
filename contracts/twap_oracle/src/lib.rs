@@ -2,34 +2,47 @@
 
 #![no_std]
 
+mod error;
 mod storage;
 
+use error::AdapterError;
 use sep_40_oracle::{Asset, PriceData, PriceFeedClient, PriceFeedTrait};
-use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
+use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, Vec};
 
 #[contract]
 pub struct TwapOracle;
 
 #[contractimpl]
 impl TwapOracle {
-    pub fn initialize(env: Env, admin: Address, source: Address, periods: u32) {
+    pub fn initialize(
+        env: Env,
+        admin: Address,
+        source: Address,
+        periods: u32,
+    ) -> Result<(), AdapterError> {
         if storage::has_admin(&env) {
-            panic!("already initialized");
+            return Err(AdapterError::AlreadyInitialized);
+        }
+        if periods == 0 {
+            return Err(AdapterError::InvalidConfig);
         }
         admin.require_auth();
         storage::set_admin(&env, &admin);
         storage::set_source(&env, &source);
         storage::set_periods(&env, periods);
         storage::extend_instance(&env);
+        Ok(())
     }
 
-    pub fn set_periods(env: Env, admin: Address, periods: u32) {
+    pub fn set_periods(env: Env, admin: Address, periods: u32) -> Result<(), AdapterError> {
         admin.require_auth();
-        if admin != storage::get_admin(&env) {
-            panic!("not admin");
+        storage::require_admin(&env, &admin).map_err(AdapterError::from)?;
+        if periods == 0 {
+            return Err(AdapterError::InvalidConfig);
         }
         storage::set_periods(&env, periods);
         storage::extend_instance(&env);
+        Ok(())
     }
 }
 
@@ -63,7 +76,8 @@ impl PriceFeedTrait for TwapOracle {
         let periods = storage::get_periods(&env);
         let source = source_client(&env);
         let hist = source.prices(&asset, &periods)?;
-        if hist.len() < periods {
+        let len = hist.len();
+        if len < periods {
             return None;
         }
 
@@ -72,16 +86,15 @@ impl PriceFeedTrait for TwapOracle {
         let oldest_allowed = now.saturating_sub(periods as u64 * resolution);
 
         let mut sum: i128 = 0;
-        for i in 0..hist.len() {
-            let point = hist.get(i).unwrap();
+        for i in 0..len {
+            let point = hist.get(i)?;
             if point.timestamp < oldest_allowed {
                 return None;
             }
             sum = sum.saturating_add(point.price);
         }
 
-        let count = hist.len() as i128;
-        let avg = sum / count;
+        let avg = sum / (len as i128);
         Some(PriceData {
             price: avg,
             timestamp: now,
@@ -90,7 +103,10 @@ impl PriceFeedTrait for TwapOracle {
 }
 
 fn source_client(env: &Env) -> PriceFeedClient<'_> {
-    PriceFeedClient::new(env, &storage::get_source(env))
+    match storage::get_source(env) {
+        Ok(addr) => PriceFeedClient::new(env, &addr),
+        Err(e) => panic_with_error!(env, AdapterError::from(e)),
+    }
 }
 
 #[cfg(test)]

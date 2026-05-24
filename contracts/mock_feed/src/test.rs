@@ -70,3 +70,37 @@ fn trait_metadata() {
     let assets = client.assets();
     assert_eq!(assets.len(), 1);
 }
+
+#[test]
+fn prices_rejects_over_max_records() {
+    let env = Env::default();
+    let (_admin, client) = setup(&env);
+    let asset = Asset::Stellar(Address::generate(&env));
+    assert!(client.prices(&asset, &21).is_none());
+    assert!(client.prices(&asset, &0).is_none());
+}
+
+#[test]
+fn double_initialize_fails() {
+    let env = Env::default();
+    let (admin, client) = setup(&env);
+    let base = Asset::Other(symbol_short!("USD"));
+    let err = client
+        .try_initialize(&admin, &base, &7, &60)
+        .expect_err("expected error");
+    assert_eq!(err, Ok(crate::error::AdapterError::AlreadyInitialized));
+}
+
+#[test]
+fn zero_resolution_initialize_fails() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let admin = Address::generate(&env);
+    let base = Asset::Other(symbol_short!("USD"));
+    let contract_id = env.register(MockFeed, ());
+    let client = MockFeedClient::new(&env, &contract_id);
+    let err = client
+        .try_initialize(&admin, &base, &7, &0)
+        .expect_err("expected error");
+    assert_eq!(err, Ok(crate::error::AdapterError::InvalidConfig));
+}

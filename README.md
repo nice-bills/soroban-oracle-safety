@@ -40,7 +40,7 @@ Other targets:
 
 ```bash
 make verify          # fmt, tests, clippy, wasm build, TypeScript
-cargo test --workspace
+cargo test --workspace --features testutils
 stellar contract build
 ```
 

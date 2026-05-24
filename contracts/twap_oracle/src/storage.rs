@@ -1,43 +1,8 @@
-use soroban_sdk::{Address, Env, Symbol};
+use soroban_sdk::{Env, Symbol};
 
-const INSTANCE_THRESHOLD: u32 = 17_280;
-const INSTANCE_BUMP: u32 = 34_560;
-
-pub fn extend_instance(env: &Env) {
-    env.storage()
-        .instance()
-        .extend_ttl(INSTANCE_THRESHOLD, INSTANCE_BUMP);
-}
-
-pub fn has_admin(env: &Env) -> bool {
-    env.storage().instance().has(&Symbol::new(env, "Admin"))
-}
-
-pub fn get_admin(env: &Env) -> Address {
-    env.storage()
-        .instance()
-        .get(&Symbol::new(env, "Admin"))
-        .expect("not initialized")
-}
-
-pub fn set_admin(env: &Env, admin: &Address) {
-    env.storage()
-        .instance()
-        .set(&Symbol::new(env, "Admin"), admin);
-}
-
-pub fn get_source(env: &Env) -> Address {
-    env.storage()
-        .instance()
-        .get(&Symbol::new(env, "Source"))
-        .expect("not initialized")
-}
-
-pub fn set_source(env: &Env, source: &Address) {
-    env.storage()
-        .instance()
-        .set(&Symbol::new(env, "Source"), source);
-}
+pub use oracle_storage::{
+    extend_instance, get_source, has_admin, require_admin, set_admin, set_source,
+};
 
 pub fn get_periods(env: &Env) -> u32 {
     env.storage()

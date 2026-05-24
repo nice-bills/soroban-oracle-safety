@@ -1,0 +1,13 @@
+[package]
+name = "oracle-test-utils"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+sep-40-oracle = { workspace = true, features = ["testutils"] }
+mock-feed = { path = "../../contracts/mock_feed" }
+twap-oracle = { path = "../../contracts/twap_oracle" }
+circuit-breaker = { path = "../../contracts/circuit_breaker" }

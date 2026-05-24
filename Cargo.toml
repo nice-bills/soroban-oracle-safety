@@ -16,6 +16,7 @@ publish = false
 [workspace.dependencies]
 soroban-sdk = "22.0.7"
 sep-40-oracle = { version = "=1.2.2", default-features = false }
+oracle-storage = { path = "crates/oracle-storage" }
 
 [profile.release]
 opt-level = "z"

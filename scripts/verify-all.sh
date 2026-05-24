@@ -7,7 +7,7 @@ echo "==> fmt check"
 cargo fmt --all -- --check
 
 echo "==> workspace tests"
-cargo test --workspace
+cargo test --workspace --features testutils
 
 echo "==> clippy"
 cargo clippy --workspace --all-targets -- -D warnings

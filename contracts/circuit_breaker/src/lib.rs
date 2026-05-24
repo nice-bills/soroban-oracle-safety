@@ -1,11 +1,16 @@
 //! SEP-40 oracle wrapper: staleness and max-deviation circuit breaker.
+//!
+//! All `PriceFeedTrait` methods apply guards (staleness + deviation on cached prior).
 
 #![no_std]
 
+mod error;
+mod policy;
 mod storage;
 
+use error::AdapterError;
 use sep_40_oracle::{Asset, PriceData, PriceFeedClient, PriceFeedTrait};
-use soroban_sdk::{contract, contractimpl, Address, Env, Symbol, Vec};
+use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, Vec};
 
 pub use storage::CircuitBreakerConfig;
 
@@ -14,24 +19,35 @@ pub struct CircuitBreaker;
 
 #[contractimpl]
 impl CircuitBreaker {
-    pub fn initialize(env: Env, admin: Address, source: Address, config: CircuitBreakerConfig) {
+    pub fn initialize(
+        env: Env,
+        admin: Address,
+        source: Address,
+        config: CircuitBreakerConfig,
+    ) -> Result<(), AdapterError> {
         if storage::has_admin(&env) {
-            panic!("already initialized");
+            return Err(AdapterError::AlreadyInitialized);
         }
+        config.validate().map_err(AdapterError::from)?;
         admin.require_auth();
         storage::set_admin(&env, &admin);
         storage::set_source(&env, &source);
         storage::set_config(&env, &config);
         storage::extend_instance(&env);
+        Ok(())
     }
 
-    pub fn set_config(env: Env, admin: Address, config: CircuitBreakerConfig) {
+    pub fn set_config(
+        env: Env,
+        admin: Address,
+        config: CircuitBreakerConfig,
+    ) -> Result<(), AdapterError> {
         admin.require_auth();
-        if admin != storage::get_admin(&env) {
-            panic!("not admin");
-        }
+        storage::require_admin(&env, &admin).map_err(AdapterError::from)?;
+        config.validate().map_err(AdapterError::from)?;
         storage::set_config(&env, &config);
         storage::extend_instance(&env);
+        Ok(())
     }
 }
 
@@ -54,49 +70,23 @@ impl PriceFeedTrait for CircuitBreaker {
     }
 
     fn price(env: Env, asset: Asset, timestamp: u64) -> Option<PriceData> {
-        source_client(&env).price(&asset, &timestamp)
+        policy::guarded_price(&env, &source_client(&env), &asset, timestamp)
     }
 
     fn prices(env: Env, asset: Asset, records: u32) -> Option<Vec<PriceData>> {
-        source_client(&env).prices(&asset, &records)
+        policy::guarded_prices(&env, &source_client(&env), &asset, records)
     }
 
     fn lastprice(env: Env, asset: Asset) -> Option<PriceData> {
-        let config = storage::get_config(&env);
-        let inner = source_client(&env).lastprice(&asset)?;
-
-        let now = env.ledger().timestamp();
-        if now.saturating_sub(inner.timestamp) > config.max_staleness_secs {
-            env.events()
-                .publish((Symbol::new(&env, "brk"),), ("stale", asset.clone()));
-            return None;
-        }
-
-        if let Some(prev) = storage::get_last_price(&env, &asset) {
-            if exceeds_deviation(prev.price, inner.price, config.max_deviation_bps) {
-                env.events()
-                    .publish((Symbol::new(&env, "brk"),), ("dev", asset.clone()));
-                return None;
-            }
-        }
-
-        storage::set_last_price(&env, &asset, &inner);
-        Some(inner)
+        policy::guarded_lastprice(&env, &source_client(&env), &asset)
     }
 }
 
 fn source_client(env: &Env) -> PriceFeedClient<'_> {
-    PriceFeedClient::new(env, &storage::get_source(env))
-}
-
-/// `bps = abs(new - old) * 10000 / old` (old == 0 skips deviation check).
-fn exceeds_deviation(old: i128, new: i128, max_bps: u32) -> bool {
-    if max_bps == 0 || old == 0 {
-        return false;
+    match storage::get_source(env) {
+        Ok(addr) => PriceFeedClient::new(env, &addr),
+        Err(e) => panic_with_error!(env, AdapterError::from(e)),
     }
-    let diff = if new >= old { new - old } else { old - new };
-    let bps = diff.saturating_mul(10_000) / old.abs();
-    bps > max_bps as i128
 }
 
 #[cfg(test)]
